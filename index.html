@@ -117,6 +117,29 @@ a.btn{text-decoration:none;display:inline-block}
 .chip[aria-pressed=true]{background:#fff;color:#000;border-color:#fff}
 #toast{position:fixed;left:50%;bottom:calc(34px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;max-width:min(92vw,420px);padding:16px 22px;border-radius:20px;border:1px solid var(--line);background:rgba(10,10,12,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-align:center;font-size:15px;opacity:0;pointer-events:none;transition:.5s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+.gauge{margin-top:30px;display:flex;flex-direction:column;align-items:center;color:var(--muted);font-size:13px;letter-spacing:.06em}
+.gauge svg{width:min(78vw,270px);overflow:visible}
+#needle{transform-origin:120px 120px;transform:rotate(-90deg);transition:transform 1.1s cubic-bezier(.3,1.5,.4,1)}
+#arc{transition:stroke-dasharray 1.1s ease}
+.gnum{margin-top:-14px;display:flex;align-items:baseline;gap:8px}
+.gnum b{font-weight:200;font-size:46px;color:#fff;line-height:1}
+.plcard{display:flex;align-items:center;gap:16px;width:100%;max-width:420px;margin-top:10px;padding:12px 20px 12px 12px;border:1px solid var(--line);border-radius:22px;background:var(--card);text-decoration:none;color:inherit;text-align:left;transition:.3s}
+.plcard:hover{border-color:#fff;transform:translateY(-2px)}
+.plcard img{width:64px;height:64px;border-radius:12px;object-fit:cover;flex:none}
+.plcard>div{flex:1;display:flex;flex-direction:column}
+.plcard b{font-weight:300;font-size:19px}
+.plcard>div span{color:var(--muted);font-size:13px}
+.plcard .go{font-size:20px}
+.dgrid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.dt{padding:24px;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:var(--card);display:flex;flex-direction:column;gap:12px}
+.dt b{font-weight:200;font-size:26px;letter-spacing:-.02em;line-height:1.15}
+.dt span{color:var(--muted);font-size:14px;line-height:1.5}
+.row{display:flex;align-items:center;gap:12px}
+.led{width:10px;height:10px;flex:none;border-radius:50%;background:#fff;box-shadow:0 0 14px #fff;animation:blink 2.2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.35}}
+.bar{height:4px;border-radius:4px;background:rgba(255,255,255,.12);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#fff;transition:width 2.4s ease .3s}
+.reveal.visible .bar i{width:100%}
 .track{display:flex;flex-direction:column;align-items:center;gap:26px;margin:30px 0 6px;text-decoration:none;color:inherit}
 .cover{position:relative;width:min(58vw,250px);margin-right:min(14vw,60px)}
 .vinyl{position:absolute;inset:3% 0;transform:translateX(30%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
@@ -161,11 +184,21 @@ a.btn{text-decoration:none;display:inline-block}
     </div>
     <div class="sky reveal" id="sky"><svg id="lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg></div>
     <div id="message" aria-live="polite">Kliknij dowolne serce, aby odkryć wiadomość ♡</div>
-    <div class="progress-row"><span id="counter">0 / 7</span><div class="track"><div id="progress"></div></div><span id="progress-label">do odkrycia</span></div>
+    <div class="gauge">
+      <svg viewBox="0 0 240 140" role="img" aria-label="Licznik odkrytych serc">
+        <path d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="2"/>
+        <path id="arc" d="M30 120 A90 90 0 0 1 210 120" fill="none" stroke="#fff" stroke-width="2" pathLength="100" stroke-dasharray="0 100"/>
+        <g id="ticks" stroke="rgba(255,255,255,.55)" stroke-width="1.5"></g>
+        <g id="needle"><line x1="120" y1="120" x2="120" y2="44" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g>
+        <circle cx="120" cy="120" r="6" fill="#fff"/>
+      </svg>
+      <div class="gnum"><b id="counter">0</b><span>/ 7</span></div>
+      <span id="progress-label">do odkrycia</span>
+    </div>
   </section>
 
   <section class="wrap" id="why">
-    <div class="head reveal"><span class="tag">dlaczego</span><h2>Powody, dla których</h2></div>
+    <div class="head reveal"><span class="tag">dlaczego</span><h2>Za co Cię lubię</h2></div>
     <ol class="list" id="reasons"></ol>
   </section>
 
@@ -183,6 +216,26 @@ a.btn{text-decoration:none;display:inline-block}
         <div class="meta"><b id="songTitle"></b><span id="songArtist"></span></div>
       </a>
       <p class="tag">Otwórz w Spotify ♡</p>
+    </div>
+  </section>
+
+  <section class="cta" id="plSec" style="display:none">
+    <div class="wrap reveal" style="padding-top:10px">
+      <span class="tag">na pierwszą trasę</span>
+      <a class="plcard" id="plA" target="_blank" rel="noopener noreferrer">
+        <img id="plImg" alt="" referrerpolicy="no-referrer">
+        <div><b id="plT"></b><span id="plS"></span></div>
+        <span class="go">↗</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <div class="head reveal"><span class="tag">kontrolki</span><h2>Deska rozdzielcza</h2></div>
+    <div class="dgrid reveal">
+      <div class="dt"><span class="tag">kontrolka</span><div class="row"><i class="led"></i><b>Check ♡</b></div><span>Świeci, kiedy o Tobie myślę. Czyli prawie zawsze.</span></div>
+      <div class="dt"><span class="tag">poziom uśmiechu</span><b>100%</b><div class="bar"><i></i></div></div>
+      <div class="dt"><span class="tag">tryb jazdy</span><b>Spokojna trasa</b><span>Bez pośpiechu. Dokądkolwiek, byle razem.</span></div>
     </div>
   </section>
 
@@ -254,29 +307,30 @@ const CFG = {
   date: "2026-11-21",
   time: "19:00",
   place: "Miejsce — niespodzianka ✦",
-  places: ["Kino", "Spacer", "Kolacja", "Niespodzianka ✦"],
+  places: ["Przejażdżka", "Kino", "Spacer", "Kolacja", "Niespodzianka ✦"],
   secret: "Znalazłaś mój sekret. Uśmiecham się za każdym razem, gdy dostaję od Ciebie wiadomość ♡",
   // Edytuj te teksty — im bardziej osobiste, tym lepiej:
   reasons: [
-    "Twoje podejście do życia.",
-    "Twój sposób patrzenia na świat.",
-    "Twój uśmiech i charakter.",
-    "Jesteś wyrazista — i właśnie to mi się podoba.",
-    "Lubię Twoją prostotę i Twoją wierność.",
-    "Jesteś prawdziwa.",
-    "Wnosisz światło do mojego świata.",
-    "Twój zapach. Naprawdę nie żartuję.",
-    "Od Twojej wiadomości zaczyna się mój uśmiech."
+    "Za to, że patrzysz na życie po swojemu.",
+    "Za Twoje spojrzenie na świat.",
+    "Za uśmiech, który zostaje w głowie na długo.",
+    "Za wyrazisty charakter. Tak, właśnie za niego 😉",
+    "Za prostotę i lojalność.",
+    "Za to, że jesteś prawdziwa. Bez masek.",
+    "Za światło, które wnosisz tam, gdzie jesteś.",
+    "Za zapach, który pamiętam do dziś.",
+    "Za wiadomości, od których zaczyna się dobry dzień."
   ],
   story: [
-    ["Nasze rozmowy", "Ten miesiąc, w którym mogłem z Tobą rozmawiać, był najjaśniejszym w moim życiu."],
-    ["Obok mnie", "Każda sekunda, kiedy siedziałaś obok mnie."],
-    ["Twoje spojrzenie", "Każdy moment, kiedy na mnie patrzyłaś. Każdy Twój dotyk."],
-    ["Twoje wiadomości", "Rano pierwsze, co robię, to sprawdzam, czy coś napisałaś. I od razu się uśmiecham."],
-    ["Każdy wieczór", "Prawie każdego wieczoru wracam myślami do wszystkiego, co się wydarzyło."],
+    ["Rozmowy", "Jeden miesiąc, który wystarczył, żeby wszystko zrobiło się jaśniejsze."],
+    ["Obok", "Chwile, kiedy siedziałaś tuż przy mnie."],
+    ["Spojrzenia", "Pamiętam, jak na mnie patrzyłaś. I każdy dotyk."],
+    ["Poranki", "Budzę się i od razu zerkam, czy napisałaś. Uśmiech przychodzi sam."],
+    ["Wieczory", "Wracam myślami do tego, co między nami było. Prawie codziennie."],
     ["Dziś", "Ta strona. I jedno pytanie."]
   ],
-  song: {title: "Jeziorko", artist: "Tymek, Kacperczyk", url: "https://open.spotify.com/track/6L5zMS8FuMGxugOqK0twJv", img: "https://i.scdn.co/image/ab67616d0000b273386fa6f86106737825603d4f"},  // wklej link do Spotify / YouTube, żeby pokazać sekcję
+  song: {title: "Jeziorko", artist: "Tymek, Kacperczyk", url: "https://open.spotify.com/track/6L5zMS8FuMGxugOqK0twJv", img: "https://i.scdn.co/image/ab67616d0000b273386fa6f86106737825603d4f"},
+  playlist: {title: "LN-Drive", sub: "168 utworów · na pierwszą trasę", url: "https://open.spotify.com/playlist/0ilJK9S0ROsoYcs16mxEe6", img: "https://image-cdn-fa.spotifycdn.com/image/ab67706c0000da84a6740bb1e8ddef12456f7e77"},  // wklej link do Spotify / YouTube, żeby pokazać sekcję
   tg: "",   // Telegram: login bez @
   wa: "",   // WhatsApp: numer z kodem kraju, same cyfry
   sms: "",  // numer do SMS, np. +48123456789
@@ -344,8 +398,9 @@ positions.forEach((pos, i) => {
         $("#lines").appendChild(l);
       }
       previous = i;
-      $("#counter").textContent = found + " / 7";
-      $("#progress").style.width = (found / 7 * 100) + "%";
+      $("#counter").textContent = found;
+      $("#needle").style.transform = "rotate(" + (-90 + found / 7 * 180) + "deg)";
+      $("#arc").setAttribute("stroke-dasharray", (found / 7 * 100) + " 100");
       $("#progress-label").textContent = found === 7 ? "wszystkie odkryte ♡" : "do odkrycia";
       burst(12, h.getBoundingClientRect());
     }
@@ -407,6 +462,19 @@ if (CFG.song.url) {
   $("#songSec").style.display = ""; $("#songA").href = CFG.song.url;
   $("#songTitle").textContent = CFG.song.title || ""; $("#songArtist").textContent = CFG.song.artist || "";
   const im = $("#songImg"); im.onerror = () => im.remove(); if (CFG.song.img) im.src = CFG.song.img; else im.remove();
+}
+const tk = $("#ticks");
+for (let i = 0; i <= 7; i++) {
+  const a = (-90 + i * 180 / 7) * Math.PI / 180, l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  l.setAttribute("x1", 120 + 76 * Math.sin(a)); l.setAttribute("y1", 120 - 76 * Math.cos(a));
+  l.setAttribute("x2", 120 + 86 * Math.sin(a)); l.setAttribute("y2", 120 - 86 * Math.cos(a));
+  tk.appendChild(l);
+}
+const pl = CFG.playlist;
+if (pl && pl.url) {
+  $("#plSec").style.display = ""; $("#plA").href = pl.url;
+  $("#plT").textContent = pl.title || ""; $("#plS").textContent = pl.sub || "";
+  const pi = $("#plImg"); pi.onerror = () => pi.remove(); if (pl.img) pi.src = pl.img; else pi.remove();
 }
 let chosen = "";
 CFG.places.forEach(n => {
