@@ -99,6 +99,24 @@ footer{padding:50px 20px calc(50px + env(safe-area-inset-bottom));text-align:cen
 .letter p.first{font-size:clamp(24px,4vw,34px);font-weight:200;letter-spacing:-.02em;line-height:1.3;margin-bottom:1.2em;color:#fff}
 .letter .end{text-align:center;margin-top:60px;font-size:28px}
 body.lock{overflow:hidden}
+nav svg{pointer-events:auto;cursor:pointer}
+a.btn{text-decoration:none;display:inline-block}
+.list{list-style:none;margin:0;padding:0;counter-reset:r}
+.list li{counter-increment:r;display:flex;gap:22px;align-items:baseline;padding:22px 0;border-top:1px solid rgba(255,255,255,.12);font-size:clamp(19px,2.6vw,24px);font-weight:200;letter-spacing:-.01em}
+.list li:last-child{border-bottom:1px solid rgba(255,255,255,.12)}
+.list li::before{content:counter(r,decimal-leading-zero);color:var(--muted);font-size:13px;letter-spacing:.14em;font-weight:400;flex:none}
+.tl{position:relative;margin:0;padding:0 0 0 28px;list-style:none;border-left:1px solid rgba(255,255,255,.2)}
+.tl li{position:relative;padding-bottom:42px}
+.tl li:last-child{padding-bottom:0}
+.tl li::before{content:"";position:absolute;left:-33px;top:10px;width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 14px rgba(255,255,255,.5)}
+.tl b{display:block;font-weight:300;font-size:clamp(21px,3vw,28px);letter-spacing:-.02em}
+.tl span{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:-10px}
+.chip{padding:10px 18px;border-radius:99px;border:1px solid var(--line);background:transparent;cursor:pointer;font-size:14px;transition:.25s}
+.chip:hover{border-color:#fff}
+.chip[aria-pressed=true]{background:#fff;color:#000;border-color:#fff}
+#toast{position:fixed;left:50%;bottom:calc(34px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;max-width:min(92vw,420px);padding:16px 22px;border-radius:20px;border:1px solid var(--line);background:rgba(10,10,12,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-align:center;font-size:15px;opacity:0;pointer-events:none;transition:.5s}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -106,14 +124,14 @@ body.lock{overflow:hidden}
 <canvas id="fx" aria-hidden="true"></canvas>
 
 <nav>
-  <svg viewBox="0 0 24 24" aria-label="♡"><path d="M12 20.5s-8-4.9-8-11A4.6 4.6 0 0 1 12 6.8 4.6 4.6 0 0 1 20 9.5c0 6.1-8 11-8 11z"/></svg>
+  <svg viewBox="0 0 24 24" id="secret" role="button" tabindex="0" aria-label="♡"><path d="M12 20.5s-8-4.9-8-11A4.6 4.6 0 0 1 12 6.8 4.6 4.6 0 0 1 20 9.5c0 6.1-8 11-8 11z"/></svg>
   <span class="pill">Dla Ciebie <i></i></span>
 </nav>
 
 <main>
   <header class="hero">
     <h1 id="title">Dla <span id="name">Ciebie</span> ♡</h1>
-    <p class="sub">Zawsze. Wszędzie. ♡</p>
+    <p class="sub" id="subline">Zawsze. Wszędzie. ♡</p>
     <button class="down" id="down" aria-label="Przewiń w dół"><svg viewBox="0 0 24 24"><path d="M12 4v16M5 13l7 7 7-7"/></svg></button>
   </header>
 
@@ -132,11 +150,32 @@ body.lock{overflow:hidden}
     <div class="progress-row"><span id="counter">0 / 7</span><div class="track"><div id="progress"></div></div><span id="progress-label">do odkrycia</span></div>
   </section>
 
+  <section class="wrap" id="why">
+    <div class="head reveal"><span class="tag">dlaczego</span><h2>Powody, dla których</h2></div>
+    <ol class="list" id="reasons"></ol>
+  </section>
+
+  <section class="wrap">
+    <div class="head reveal"><span class="tag">nasza historia</span><h2>Od pierwszej rozmowy</h2></div>
+    <ol class="tl" id="story"></ol>
+  </section>
+
+  <section class="cta" id="songSec" style="display:none">
+    <div class="wrap reveal" style="padding-top:40px">
+      <span class="tag">ta piosenka</span>
+      <p class="sub">Ta piosenka kojarzy mi się z Tobą</p>
+      <p class="tag" id="songT"></p>
+      <a class="btn sec" id="songA" target="_blank" rel="noopener noreferrer">Posłuchaj ♡</a>
+    </div>
+  </section>
+
   <section class="wrap" id="invite">
     <div class="card reveal" id="ask">
       <span class="tag">ostatnie pytanie</span>
       <h2>Pójdziesz ze mną na randkę?</h2>
       <div class="when" id="when"></div>
+      <p class="count-label">Gdzie chciałabyś pójść?</p>
+      <div class="chips" id="chips"></div>
       <div class="actions">
         <button class="btn" id="yes">Z największą przyjemnością ♡</button>
         <button class="btn sec" id="other">Wybiorę termin</button>
@@ -167,6 +206,7 @@ body.lock{overflow:hidden}
   <footer>Zrobione z czułością, specjalnie dla Ciebie ♡</footer>
 </main>
 
+<div id="toast" aria-live="polite"></div>
 <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="List">
   <button class="pill close" id="closeLetter" type="button">Zamknij</button>
   <div class="lbox">
@@ -197,9 +237,28 @@ const CFG = {
   date: "2026-11-21",
   time: "19:00",
   place: "Miejsce — niespodzianka ✦",
+  places: ["Kino", "Spacer", "Kolacja", "Niespodzianka ✦"],
+  secret: "Znalazłaś mój sekret. Uśmiecham się za każdym razem, gdy dostaję od Ciebie wiadomość ♡",
+  // Edytuj te teksty — im bardziej osobiste, tym lepiej:
+  reasons: [
+    "Twój uśmiech zostaje w pamięci na długo.",
+    "Jesteś prawdziwa — bez udawania.",
+    "Patrzysz na świat po swojemu.",
+    "Przy Tobie zwykły dzień staje się przygodą.",
+    "Wnosisz światło tam, gdzie się pojawiasz.",
+    "Cenię Twoją szczerość i wierność.",
+    "Po prostu jesteś sobą. I to wystarcza."
+  ],
+  story: [
+    ["Pierwsza rozmowa", "Wtedy jeszcze nie wiedziałem, że zapamiętam ją na długo."],
+    ["Obok mnie", "Każda sekunda, kiedy siedziałaś obok."],
+    ["Najjaśniejszy miesiąc", "Rozmowy, które nadały sens wielu rzeczom."],
+    ["Dziś", "Ta strona. I jedno pytanie."]
+  ],
+  song: {title: "", artist: "", url: ""},  // wklej link do Spotify / YouTube, żeby pokazać sekcję
   tg: "",   // Telegram: login bez @
   wa: "",   // WhatsApp: numer z kodem kraju, same cyfry
-  sms: "+48730939704",  // numer do SMS, np. +48123456789
+  sms: "",  // numer do SMS, np. +48123456789
   letter: [
     "Są ludzie, przy których świat robi się łagodniejszy.",
     "Ty jesteś jedną z nich.",
@@ -219,7 +278,8 @@ const CFG = {
 const $ = s => document.querySelector(s);
 const formatDate = (d, t) => new Date(d + "T" + (t || "12:00")).toLocaleDateString("pl-PL", {weekday:"long", day:"numeric", month:"long"}) + (t ? " o " + t : "");
 
-if (CFG.name) $("#name").textContent = CFG.name;
+const nm = (new URLSearchParams(location.search).get("n") || CFG.name || "").slice(0, 30);
+if (nm) $("#subline").textContent = nm + ". Zawsze. Wszędzie. ♡";
 $("#down").addEventListener("click", () => document.querySelector("section").scrollIntoView({behavior:"smooth"}));
 
 CFG.letter.forEach(line => {
@@ -293,7 +353,7 @@ function accept(label, iso) {
   $("#cd").style.display = targetDate ? "contents" : "none";
   if (targetDate) { updateCountdown(); timer = setInterval(updateCountdown, 1000); }
   $("#ask").style.display = "none"; $("#done").style.display = "flex";
-  $("#final-date").textContent = label; $("#place").textContent = CFG.place;
+  $("#final-date").textContent = label; $("#place").textContent = chosen ? "Wybór: " + chosen : CFG.place;
   burst(110);
   $("#done").scrollIntoView({behavior:"smooth", block:"center"});
 }
@@ -306,7 +366,7 @@ $("#confirm").addEventListener("click", () => {
 });
 $("#send").addEventListener("click", async () => {
   const note = $("#note").value.trim();
-  const msg = "Tak! Zgadzam się na randkę ♡" + (targetDate ? " " + selectedDate : "") + (note ? "\n\n" + note : "");
+  const msg = "Tak! Zgadzam się na randkę ♡" + (targetDate ? " " + selectedDate : "") + (chosen ? "\nChciałabym: " + chosen : "") + (note ? "\n\n" + note : "");
   const url = CFG.tg ? "https://t.me/" + CFG.tg + "?text=" + encodeURIComponent(msg)
     : CFG.wa ? "https://wa.me/" + CFG.wa + "?text=" + encodeURIComponent(msg)
     : CFG.sms ? "sms:" + CFG.sms + "?&body=" + encodeURIComponent(msg) : "";
@@ -315,6 +375,36 @@ $("#send").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(msg); $("#hint").textContent = "Skopiowane — możesz już wysłać tę wiadomość ♡"; }
   catch (e) { $("#hint").textContent = msg; }
 });
+
+/* extra sections */
+CFG.reasons.forEach(t => { const li = document.createElement("li"); li.className = "reveal"; li.textContent = t; $("#reasons").appendChild(li); });
+CFG.story.forEach(s => {
+  const li = document.createElement("li"), b = document.createElement("b"), sp = document.createElement("span");
+  li.className = "reveal"; b.textContent = s[0]; sp.textContent = s[1]; li.append(b, sp); $("#story").appendChild(li);
+});
+if (CFG.song.url) {
+  $("#songSec").style.display = ""; $("#songA").href = CFG.song.url;
+  $("#songT").textContent = (CFG.song.title || "") + (CFG.song.artist ? " — " + CFG.song.artist : "");
+}
+let chosen = "";
+CFG.places.forEach(n => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "chip"; b.textContent = n; b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => {
+    chosen = chosen === n ? "" : n;
+    document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.textContent === chosen)));
+  });
+  $("#chips").appendChild(b);
+});
+document.querySelectorAll(".reveal:not(.visible)").forEach(el => io.observe(el));
+let tt;
+function showToast(m) {
+  $("#toast").textContent = m; $("#toast").classList.add("on");
+  clearTimeout(tt); tt = setTimeout(() => $("#toast").classList.remove("on"), 4500);
+  burst(8, $("#secret").getBoundingClientRect());
+}
+$("#secret").addEventListener("click", () => showToast(CFG.secret));
+$("#secret").addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") showToast(CFG.secret); });
 
 /* letter modal */
 const modal = $("#modal"); let lastFocus = null;
