@@ -139,7 +139,7 @@ body.lock{overflow:hidden}
       <div class="when" id="when"></div>
       <div class="actions">
         <button class="btn" id="yes">Z największą przyjemnością ♡</button>
-        <button class="btn sec" id="other">Wybierzmy inny termin</button>
+        <button class="btn sec" id="other">Wybiorę termin</button>
       </div>
       <div id="pick">
         <input type="date" id="date"><input type="time" id="time" value="19:00">
@@ -151,8 +151,8 @@ body.lock{overflow:hidden}
       <span class="tag">mamy to</span>
       <h2>To będzie piękny wieczór</h2>
       <div class="ticket"><small>zaproszenie · dla dwojga</small><strong id="final-date"></strong><div class="dash"></div><small id="place"></small></div>
-      <p class="count-label">Do naszej randki zostało</p>
-      <div id="countdown"></div>
+      <div id="cd" style="display:contents"><p class="count-label">Do naszej randki zostało</p>
+      <div id="countdown"></div></div>
       <textarea id="note" rows="2" placeholder="Chcesz coś dopisać? (opcjonalnie)"></textarea>
       <button class="btn" id="send">Wyślij odpowiedź ♡</button>
       <p id="hint" aria-live="polite"></p>
@@ -227,8 +227,7 @@ CFG.letter.forEach(line => {
   p.className = "reveal"; p.textContent = line;
   $("#chat").appendChild(p);
 });
-$("#when").textContent = formatDate(CFG.date, CFG.time);
-$("#date").value = CFG.date;
+$("#when").textContent = "Termin: jeszcze nie wiadomo";
 
 const io = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); }
@@ -289,14 +288,16 @@ function updateCountdown() {
   });
 }
 function accept(label, iso) {
-  selectedDate = label; targetDate = new Date(iso);
-  clearInterval(timer); updateCountdown(); timer = setInterval(updateCountdown, 1000);
+  selectedDate = label; targetDate = iso ? new Date(iso) : null;
+  clearInterval(timer);
+  $("#cd").style.display = targetDate ? "contents" : "none";
+  if (targetDate) { updateCountdown(); timer = setInterval(updateCountdown, 1000); }
   $("#ask").style.display = "none"; $("#done").style.display = "flex";
   $("#final-date").textContent = label; $("#place").textContent = CFG.place;
   burst(110);
   $("#done").scrollIntoView({behavior:"smooth", block:"center"});
 }
-$("#yes").addEventListener("click", () => accept(formatDate(CFG.date, CFG.time), CFG.date + "T" + CFG.time));
+$("#yes").addEventListener("click", () => accept("jeszcze nie wiadomo", null));
 $("#other").addEventListener("click", () => { $("#pick").style.display = "flex"; $("#date").focus(); });
 $("#confirm").addEventListener("click", () => {
   const d = $("#date").value, t = $("#time").value || "19:00";
@@ -305,7 +306,7 @@ $("#confirm").addEventListener("click", () => {
 });
 $("#send").addEventListener("click", async () => {
   const note = $("#note").value.trim();
-  const msg = "Tak! Zgadzam się na randkę ♡ " + selectedDate + (note ? "\n\n" + note : "");
+  const msg = "Tak! Zgadzam się na randkę ♡" + (targetDate ? " " + selectedDate : "") + (note ? "\n\n" + note : "");
   const url = CFG.tg ? "https://t.me/" + CFG.tg + "?text=" + encodeURIComponent(msg)
     : CFG.wa ? "https://wa.me/" + CFG.wa + "?text=" + encodeURIComponent(msg)
     : CFG.sms ? "sms:" + CFG.sms + "?&body=" + encodeURIComponent(msg) : "";
