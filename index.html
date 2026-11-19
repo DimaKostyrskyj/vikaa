@@ -117,6 +117,20 @@ a.btn{text-decoration:none;display:inline-block}
 .chip[aria-pressed=true]{background:#fff;color:#000;border-color:#fff}
 #toast{position:fixed;left:50%;bottom:calc(34px + env(safe-area-inset-bottom));transform:translate(-50%,20px);z-index:60;max-width:min(92vw,420px);padding:16px 22px;border-radius:20px;border:1px solid var(--line);background:rgba(10,10,12,.88);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);text-align:center;font-size:15px;opacity:0;pointer-events:none;transition:.5s}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+.track{display:flex;flex-direction:column;align-items:center;gap:26px;margin:30px 0 6px;text-decoration:none;color:inherit}
+.cover{position:relative;width:min(58vw,250px);margin-right:min(14vw,60px)}
+.vinyl{position:absolute;inset:3% 0;transform:translateX(30%);transition:transform .9s cubic-bezier(.2,.8,.2,1)}
+.vinyl i{display:block;position:relative;width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle,#0b0b0c 0 2px,#18181b 2px 3px);box-shadow:0 0 0 1px rgba(255,255,255,.14),0 24px 60px rgba(0,0,0,.6);animation:spin 8s linear infinite}
+.vinyl i::after{content:"";position:absolute;inset:34%;border-radius:50%;background:radial-gradient(circle,#050506 0 9%,#f2f2f4 10%)}
+.track:hover .vinyl,.track:focus-visible .vinyl{transform:translateX(44%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.art{position:relative;z-index:1;width:100%;aspect-ratio:1;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#34343a,#0c0c0e);box-shadow:0 30px 80px rgba(0,0,0,.75),0 0 90px rgba(255,255,255,.07),0 0 0 1px rgba(255,255,255,.14)}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.play{position:absolute;right:12px;bottom:12px;width:44px;height:44px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;font-size:14px;padding-left:2px;transition:transform .3s}
+.track:hover .play{transform:scale(1.1)}
+.meta{display:flex;flex-direction:column;gap:4px;text-align:center}
+.meta b{font-weight:200;font-size:clamp(26px,4vw,34px);letter-spacing:-.025em}
+.meta span{color:var(--muted);font-size:15px}
 </style>
 </head>
 <body>
@@ -164,8 +178,11 @@ a.btn{text-decoration:none;display:inline-block}
     <div class="wrap reveal" style="padding-top:40px">
       <span class="tag">ta piosenka</span>
       <p class="sub">Ta piosenka kojarzy mi się z Tobą</p>
-      <p class="tag" id="songT"></p>
-      <a class="btn sec" id="songA" target="_blank" rel="noopener noreferrer">Posłuchaj ♡</a>
+      <a class="track" id="songA" target="_blank" rel="noopener noreferrer" aria-label="Posłuchaj na Spotify">
+        <div class="cover"><div class="vinyl"><i></i></div><div class="art"><img id="songImg" alt="" referrerpolicy="no-referrer"><span class="play">▶</span></div></div>
+        <div class="meta"><b id="songTitle"></b><span id="songArtist"></span></div>
+      </a>
+      <p class="tag">Otwórz w Spotify ♡</p>
     </div>
   </section>
 
@@ -255,7 +272,7 @@ const CFG = {
     ["Najjaśniejszy miesiąc", "Rozmowy, które nadały sens wielu rzeczom."],
     ["Dziś", "Ta strona. I jedno pytanie."]
   ],
-  song: {title: "", artist: "", url: ""},  // wklej link do Spotify / YouTube, żeby pokazać sekcję
+  song: {title: "Jeziorko", artist: "Tymek, Kacperczyk", url: "https://open.spotify.com/track/6L5zMS8FuMGxugOqK0twJv", img: "https://i.scdn.co/image/ab67616d0000b273386fa6f86106737825603d4f"},  // wklej link do Spotify / YouTube, żeby pokazać sekcję
   tg: "",   // Telegram: login bez @
   wa: "",   // WhatsApp: numer z kodem kraju, same cyfry
   sms: "",  // numer do SMS, np. +48123456789
@@ -384,7 +401,8 @@ CFG.story.forEach(s => {
 });
 if (CFG.song.url) {
   $("#songSec").style.display = ""; $("#songA").href = CFG.song.url;
-  $("#songT").textContent = (CFG.song.title || "") + (CFG.song.artist ? " — " + CFG.song.artist : "");
+  $("#songTitle").textContent = CFG.song.title || ""; $("#songArtist").textContent = CFG.song.artist || "";
+  const im = $("#songImg"); im.onerror = () => im.remove(); if (CFG.song.img) im.src = CFG.song.img; else im.remove();
 }
 let chosen = "";
 CFG.places.forEach(n => {
