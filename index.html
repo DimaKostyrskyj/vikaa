@@ -86,6 +86,19 @@ textarea{width:100%;resize:none}
 footer{padding:50px 20px calc(50px + env(safe-area-inset-bottom));text-align:center;color:var(--muted);font-size:13px;letter-spacing:.04em}
 #fx{position:fixed;inset:0;z-index:30;pointer-events:none}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none;filter:none}}
+.cta{padding-top:0;text-align:center}
+.cta .wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
+.cta .btn{padding:17px 34px;font-size:16px}
+.modal{position:fixed;inset:0;z-index:50;display:none;background:rgba(3,3,4,.94);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);overflow-y:auto;opacity:0;transition:opacity .6s ease;-webkit-overflow-scrolling:touch}
+.modal.open{display:block}.modal.show{opacity:1}
+.close{position:fixed;top:calc(26px + env(safe-area-inset-top));right:clamp(20px,4vw,60px);z-index:51;cursor:pointer;background:rgba(0,0,0,.4)}
+.lbox{width:min(100% - 44px,640px);margin:0 auto;padding:calc(110px + env(safe-area-inset-top)) 0 calc(120px + env(safe-area-inset-bottom))}
+.calm{display:flex;gap:14px;align-items:flex-start;padding:20px 22px;border:1px solid rgba(255,255,255,.14);border-radius:22px;background:var(--card);color:#c7c7cc;font-size:15px;line-height:1.6;margin:30px 0 56px}
+.calm i{font-style:normal;font-size:20px;line-height:1.3}
+.letter p{margin:0 0 1.5em;font-size:clamp(18px,2.3vw,21px);line-height:1.85;color:#e8e8ed}
+.letter p.first{font-size:clamp(24px,4vw,34px);font-weight:200;letter-spacing:-.02em;line-height:1.3;margin-bottom:1.2em;color:#fff}
+.letter .end{text-align:center;margin-top:60px;font-size:28px}
+body.lock{overflow:hidden}
 </style>
 </head>
 <body>
@@ -145,9 +158,39 @@ footer{padding:50px 20px calc(50px + env(safe-area-inset-bottom));text-align:cen
       <p id="hint" aria-live="polite"></p>
     </div>
   </section>
+  <section class="cta">
+    <div class="wrap reveal">
+      <span class="tag">jeszcze jedno</span>
+      <button class="btn sec" id="openLetter" type="button">To, czego nie powiedziałem wprost…</button>
+    </div>
+  </section>
   <footer>Zrobione z czułością, specjalnie dla Ciebie ♡</footer>
 </main>
 
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="List">
+  <button class="pill close" id="closeLetter" type="button">Zamknij</button>
+  <div class="lbox">
+    <span class="tag">list</span>
+    <div class="calm"><i>☾</i><span>Przeczytaj to w spokoju, w momencie, kiedy nikt Cię nie pospiesza. Bez stresu i bez presji. Nie musisz od razu na nic odpowiadać. Weź tyle czasu, ile potrzebujesz.</span></div>
+    <div class="letter">
+      <p class="first">Wika, Wiktoria, albo jakkolwiek chciałbym Cię nazywać… mój świecie.</p>
+      <p>Prawie każdego wieczoru myślę o wszystkim, co się wydarzyło, o tym, co do Ciebie czuję. O każdej sekundzie, kiedy siedziałaś obok mnie, o każdej wiadomości, którą od Ciebie dostałem, o każdym momencie, kiedy na mnie patrzyłaś, o każdym Twoim dotyku. Tych uczuć nigdy nie będę w stanie zapomnieć.</p>
+      <p>To były najlepsze uczucia w moim życiu. Lepsze niż moment, kiedy zdałem prawo jazdy, lepsze niż poznanie Bartka, lepsze nawet niż moje urodziny, chociaż moje 21. urodziny były naprawdę niesamowicie szczęśliwe.</p>
+      <p>Po prostu cały czas układam sobie w głowie różne scenariusze naszych rozmów, myślę o tym, jak pięknie mogłoby być, jak wracałbym do mieszkania ze świadomością, że mam Ciebie.</p>
+      <p>Jesteś prawdziwa. Podobasz mi się nie ze względu na figurę, tyłek czy coś w tym stylu. Nie. Podobasz mi się przez Twoje podejście do życia, Twój sposób patrzenia na świat, Twój uśmiech i charakter. Tak, trochę wyrazisty 😉, ale właśnie mi się podoba. Lubię Twoją prostotę, Twoją wierność. Wnosisz światło do mojego świata i mówię to naprawdę szczerze.</p>
+      <p>Ten miesiąc, w którym miałem okazję z Tobą rozmawiać, był najjaśniejszym miesiącem w moim życiu. Czułem się jak człowiek, który naprawdę jest szczęśliwy, kiedy jesteś obok. Widziałem sens w wielu rzeczach.</p>
+      <p>Tak, rozumiem, może to głupio brzmi, ale jestem człowiekiem, któremu bliskość i miłość są potrzebne do szczęścia.</p>
+      <p>Nawet teraz czuję łzę spływającą mi po policzku. Mam przed oczami Twój wzrok i naprawdę nie rozumiem, co się ze mną dzieje.</p>
+      <p>Czasami zadaję głupie pytania, powtarzam się, ale wynika to z tego, że chcę być z Tobą bliżej, chcę lepiej Cię poznać, tylko nie do końca wiem, jak prowadzić rozmowę. Nigdy wcześniej nie byłem w takiej sytuacji. Uczę się na błędach, ale wiem, że niektóre błędy mogą dużo kosztować. Dlatego staram się podchodzić do Ciebie ostrożnie, żebyś czuła się przy mnie komfortowo i żeby rozmowa ze mną była dla Ciebie przyjemna.</p>
+      <p>I jeszcze przypomniałem sobie Twój zapach… Boże, jaki on jest cudowny. Naprawdę nie żartuję.</p>
+      <p>Zawsze czekam na Twoją wiadomość. Nawet rano, kiedy się budzę, od razu sprawdzam, czy coś do mnie napisałaś. Jeśli tak, od razu pojawia mi się uśmiech na twarzy.</p>
+      <p>Nie wiem nawet, po co to wszystko piszę… A nie, jednak wiem. Może kiedyś Ci to pokażę, żebyś mogła przeczytać i zrozumieć, co naprawdę do Ciebie czuję.</p>
+      <p>To nie jest zwykła sympatia, która po prostu minie. To coś znacznie silniejszego. Coś, co nie zniknie po tygodniu, miesiącu, roku czy nawet pięciu latach. Nie.</p>
+      <p>Piszę to nawet dlatego, że nie mam z kim o tym porozmawiać, więc pozostaje mi pisać samemu ze sobą. 😅</p>
+      <p class="end">♡</p>
+    </div>
+  </div>
+</div>
 <script>
 const CFG = {
   name: "",
@@ -271,6 +314,23 @@ $("#send").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(msg); $("#hint").textContent = "Skopiowane — możesz już wysłać tę wiadomość ♡"; }
   catch (e) { $("#hint").textContent = msg; }
 });
+
+/* letter modal */
+const modal = $("#modal"); let lastFocus = null;
+function openLetter() {
+  lastFocus = document.activeElement;
+  modal.classList.add("open"); document.body.classList.add("lock"); modal.scrollTop = 0;
+  requestAnimationFrame(() => modal.classList.add("show"));
+  $("#closeLetter").focus();
+}
+function closeLetter() {
+  modal.classList.remove("show"); document.body.classList.remove("lock");
+  setTimeout(() => modal.classList.remove("open"), 600);
+  if (lastFocus) lastFocus.focus();
+}
+$("#openLetter").addEventListener("click", openLetter);
+$("#closeLetter").addEventListener("click", closeLetter);
+addEventListener("keydown", e => { if (e.key === "Escape" && modal.classList.contains("open")) closeLetter(); });
 
 /* white hearts burst */
 const cv = $("#fx"), cx = cv.getContext("2d");
